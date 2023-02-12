@@ -1,6 +1,7 @@
 package io.github.dakotaa.containerblocker;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
@@ -16,8 +17,7 @@ public class ContainerListeners implements Listener {
         if (clicked != event.getWhoClicked().getInventory()) {
             // The cursor item is going into the top inventory
             ItemStack onCursor = event.getCursor();
-
-            if (onCursor != null && (ItemCheck.isBlocked(onCursor, event.getWhoClicked().getOpenInventory().getType()))) {
+            if (onCursor != null && (ItemCheck.isBlocked(onCursor, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle()))) {
                 event.setCancelled(true);
             }
         }
@@ -28,7 +28,7 @@ public class ContainerListeners implements Listener {
                 // The item is being shift clicked from the bottom to the top
                 ItemStack clickedOn = event.getCurrentItem();
 
-                if (clickedOn != null && (ItemCheck.isBlocked(clickedOn, event.getWhoClicked().getOpenInventory().getType()))) {
+                if (clickedOn != null && (ItemCheck.isBlocked(clickedOn, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle()))) {
                     event.setCancelled(true);
                 }
             }
@@ -39,7 +39,7 @@ public class ContainerListeners implements Listener {
     public void onInventoryDrag(InventoryDragEvent event) {
         ItemStack dragged = event.getOldCursor(); // This is the item that is being dragged
 
-        if (dragged != null && (ItemCheck.isBlocked(dragged, event.getWhoClicked().getOpenInventory().getType()))) {
+        if (dragged.getType() != Material.AIR && (ItemCheck.isBlocked(dragged, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle()))) {
             int inventorySize = event.getInventory().getSize(); // The size of the inventory, for reference
 
             // Now we go through all of the slots and check if the slot is inside our inventory (using the inventory size as reference)
@@ -56,7 +56,7 @@ public class ContainerListeners implements Listener {
     public void onHopperTransfer(InventoryMoveItemEvent event) {
         if (!event.getSource().getType().equals(InventoryType.HOPPER)) return;
         ItemStack moved = event.getItem();
-        if (moved != null && ItemCheck.isBlocked(moved, event.getDestination().getType())) {
+        if (moved.getType() != Material.AIR && ItemCheck.isBlocked(moved, event.getDestination().getType(), "Hopper")) {
             event.setCancelled(true);
         }
     }
@@ -65,7 +65,7 @@ public class ContainerListeners implements Listener {
     public void onHopperPickup(InventoryPickupItemEvent event) {
         if (!event.getInventory().getType().equals(InventoryType.HOPPER)) return;
         ItemStack moved = event.getItem().getItemStack();
-        if (moved != null && ItemCheck.isBlocked(moved, event.getInventory().getType())) {
+        if (moved.getType() != Material.AIR && ItemCheck.isBlocked(moved, event.getInventory().getType(), "Hopper")) {
             event.setCancelled(true);
         }
     }
