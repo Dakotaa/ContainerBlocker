@@ -1,0 +1,6 @@
+name: ContainerBlocker
+version: '${project.version}'
+main: io.github.dakotaa.containerblocker.ContainerBlocker
+api-version: 1.18
+authors: [ Dakotaa ]
+description: Lightweight plugin for blocking items with specific data or types from being placed in certain containers.
