@@ -6,8 +6,7 @@ public final class ContainerBlocker extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
-
+        getServer().getPluginManager().registerEvents(new ContainerListeners(), this);
     }
 
     @Override
