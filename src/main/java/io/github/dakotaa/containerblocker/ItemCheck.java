@@ -44,7 +44,6 @@ public class ItemCheck {
         groups = new BlockedGroup[numGroups];
         int i = 0;
         for (String name : groupNames) {
-            Bukkit.getLogger().info(name);
             // parse materials
             String[] materialStrings = config.getStringList("blocked-groups." + name + ".materials").toArray(new String[0]);
             Material[] materials = new Material[materialStrings.length];
@@ -54,7 +53,7 @@ public class ItemCheck {
                 j++;
             }
             String[] names = config.getStringList("blocked-groups." + name + ".names").toArray(new String[0]);
-            String[] lores = config.getStringList("blocked-groups." + name + ".lore").toArray(new String[0]);
+            String[] lores = config.getStringList("blocked-groups." + name + ".lores").toArray(new String[0]);
             String[] containerTitles = config.getStringList("blocked-groups." + name + ".container-title-whitelist").toArray(new String[0]);
             String message = config.getString("blocked-groups." + name + ".message");
             groups[i] = new BlockedGroup(name, materials, names, lores, containerTitles, message);
@@ -75,7 +74,7 @@ public class ItemCheck {
         for (BlockedGroup g : groups) {
             blocked = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack);
             if (blocked) { // if item is blocked, make final check for whether the inventory name is whitelisted
-                return g.checkContainerTitle(inventoryName);
+                return !g.isWhitelistedContainer(inventoryName);
             }
         }
         return false;
@@ -85,11 +84,9 @@ public class ItemCheck {
         if (neverBlock.contains(inventoryType)) return false; // never block movement within the inventory/armour/crafting slots
         for (BlockedGroup g : groups) {
             blocked = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack);
-            if (blocked) { // if item is blocked, make final check for whether the inventory name is whitelisted
-                if (g.checkContainerTitle(inventoryName)) {
-                    player.sendMessage(g.getMessage());
-                    return true;
-                }
+            if (blocked && !g.isWhitelistedContainer(inventoryName)) { // if item is blocked, make final check for whether the inventory name is whitelisted
+                player.sendMessage(g.getMessage());
+                return true;
             }
         }
         return false;

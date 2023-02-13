@@ -8,28 +8,40 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * BlockedGroup represents a collection of materials, item names, and item lore lines that should be blocked.
+ * Certain container titles can be whitelisted, allowing an item that would be otherwise blocked.
+ * The message is displayed to the user when they attempt to move a blocked item.
+ */
 public class BlockedGroup {
-    private String id;
-    private Material[] materials;
-    private String[] names;
-    private String[] loreElements;
-    private String[] containerTitles;
-    private String message;
+    private final String id;
+    private final Material[] materials;
+    private final Pattern[] namePatterns;
+    private final Pattern[] lorePatterns;
+    private final Pattern[] containerTitlePatterns;
+    private final String message;
     static Pattern pattern = Pattern.compile(ChatColor.translateAlternateColorCodes('&', "&8Go{2,4}d Inventory"), Pattern.CASE_INSENSITIVE);
     public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] containerTitles, String message) {
         this.id = id;
         this.materials = materials;
+        // compile regex patterns for blocked names
+        this.namePatterns = new Pattern[names.length];
         for (int i = 0; i < names.length; i++) {
-            names[i] = ChatColor.translateAlternateColorCodes('&', names[i]);
+            this.namePatterns[i] = Pattern.compile(ChatColor.translateAlternateColorCodes('&', names[i]), Pattern.CASE_INSENSITIVE);
         }
-        this.names = names;
+        // compile regex patterns for blocked lore elements
+        this.lorePatterns = new Pattern[loreElements.length];
         for (int i = 0; i < loreElements.length; i++) {
-            loreElements[i] = ChatColor.translateAlternateColorCodes('&', loreElements[i]);
+            this.lorePatterns[i] = Pattern.compile(ChatColor.translateAlternateColorCodes('&', loreElements[i]), Pattern.CASE_INSENSITIVE);
         }
-        this.loreElements = loreElements;
-        this.containerTitles = containerTitles;
+        // compile regex patterns for container titles
+        this.containerTitlePatterns = new Pattern[containerTitles.length];
+        for (int i = 0; i < containerTitles.length; i++) {
+            this.containerTitlePatterns[i] = Pattern.compile(ChatColor.translateAlternateColorCodes('&', containerTitles[i]), Pattern.CASE_INSENSITIVE);
+        }
         this.message = ChatColor.translateAlternateColorCodes('&', message);
     }
 
@@ -49,7 +61,13 @@ public class BlockedGroup {
      */
     public boolean checkName(ItemStack itemStack) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        return itemMeta != null && Arrays.asList(names).contains(itemMeta.getDisplayName());
+        if (itemMeta == null) return false;
+        String name = itemMeta.getDisplayName();
+        for (Pattern p : this.namePatterns) {
+            Matcher matcher = p.matcher(name);
+            if (matcher.find()) return true;
+        }
+        return false;
     }
 
     /**
@@ -61,16 +79,22 @@ public class BlockedGroup {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null || itemMeta.getLore() == null) return false;
         for (String line : itemMeta.getLore()) {
-            if (Arrays.asList(loreElements).contains(line)) return true;
+            for (Pattern p : this.lorePatterns) {
+                Matcher matcher = p.matcher(line);
+                if (matcher.find()) return true;
+            }
         }
         return false;
     }
 
-    public boolean checkContainerTitle(String containerTitle) {
-        return !Arrays.asList(containerTitles).contains(containerTitle);
-        // TODO: use regex
+    public boolean isWhitelistedContainer(String containerTitle) {
+        for (Pattern p : this.containerTitlePatterns) {
+            Matcher matcher = p.matcher(containerTitle);
+            if (matcher.find()) return true;
+        }
+        return false;
     }
-//
+
     public String getId() {
         return id;
     }
