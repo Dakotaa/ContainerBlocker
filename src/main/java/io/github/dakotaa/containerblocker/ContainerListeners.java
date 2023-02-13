@@ -2,6 +2,7 @@ package io.github.dakotaa.containerblocker;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
@@ -13,33 +14,39 @@ public class ContainerListeners implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         Inventory clicked = event.getClickedInventory();
-        // drag + drop item into chest
-        if (clicked != event.getWhoClicked().getInventory()) {
+        if (clicked != event.getWhoClicked().getInventory()) {  // drag + drop item into chest
             // The cursor item is going into the top inventory
             ItemStack onCursor = event.getCursor();
-            if (onCursor != null && (ItemCheck.isBlocked(onCursor, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle()))) {
+            if (onCursor != null && ItemCheck.isBlocked((Player) event.getWhoClicked(), onCursor, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle())) {
                 event.setCancelled(true);
             }
-        }
-
-        // shift + click item into chest
-        if (event.getClick().isShiftClick()) {
+        } else if (event.getClick().isShiftClick()) { // shift + click item into chest
             if (clicked == event.getWhoClicked().getInventory()) {
                 // The item is being shift clicked from the bottom to the top
                 ItemStack clickedOn = event.getCurrentItem();
 
-                if (clickedOn != null && (ItemCheck.isBlocked(clickedOn, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle()))) {
+                if (clickedOn != null && ItemCheck.isBlocked((Player) event.getWhoClicked(),clickedOn, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle())) {
+                    event.setCancelled(true);
+                }
+            }
+        } else if (event.getClick().isKeyboardClick()) { // keyboard number used to swap
+            if (clicked == event.getWhoClicked().getInventory()) {
+                // The item is being shift clicked from the bottom to the top
+                ItemStack clickedOn = event.getCurrentItem();
+                Bukkit.broadcastMessage(clickedOn.getType().toString());
+                if (ItemCheck.isBlocked((Player) event.getWhoClicked(), clickedOn, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle())) {
                     event.setCancelled(true);
                 }
             }
         }
+
     }
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         ItemStack dragged = event.getOldCursor(); // This is the item that is being dragged
 
-        if (dragged.getType() != Material.AIR && (ItemCheck.isBlocked(dragged, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle()))) {
+        if (dragged.getType() != Material.AIR && (ItemCheck.isBlocked((Player) event.getWhoClicked(), dragged, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle()))) {
             int inventorySize = event.getInventory().getSize(); // The size of the inventory, for reference
 
             // Now we go through all of the slots and check if the slot is inside our inventory (using the inventory size as reference)

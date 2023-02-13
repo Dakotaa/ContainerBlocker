@@ -16,13 +16,21 @@ public class BlockedGroup {
     private String[] names;
     private String[] loreElements;
     private String[] containerTitles;
+    private String message;
     static Pattern pattern = Pattern.compile(ChatColor.translateAlternateColorCodes('&', "&8Go{2,4}d Inventory"), Pattern.CASE_INSENSITIVE);
-    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] containerTitles) {
+    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] containerTitles, String message) {
         this.id = id;
         this.materials = materials;
+        for (int i = 0; i < names.length; i++) {
+            names[i] = ChatColor.translateAlternateColorCodes('&', names[i]);
+        }
         this.names = names;
+        for (int i = 0; i < loreElements.length; i++) {
+            loreElements[i] = ChatColor.translateAlternateColorCodes('&', loreElements[i]);
+        }
         this.loreElements = loreElements;
         this.containerTitles = containerTitles;
+        this.message = ChatColor.translateAlternateColorCodes('&', message);
     }
 
     /**
@@ -55,7 +63,7 @@ public class BlockedGroup {
         for (String line : itemMeta.getLore()) {
             if (Arrays.asList(loreElements).contains(line)) return true;
         }
-        return itemStack.getType().equals(Material.ACACIA_DOOR);
+        return false;
     }
 
     public boolean checkContainerTitle(String containerTitle) {
@@ -67,7 +75,11 @@ public class BlockedGroup {
         return id;
     }
 
-//    public Material[] getMaterials() {
+    public String getMessage() {
+        return message;
+    }
+
+    //    public Material[] getMaterials() {
 //        return materials;
 //    }
 //

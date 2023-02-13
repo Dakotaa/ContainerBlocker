@@ -1,0 +1,41 @@
+blocked-groups:
+  valuables:
+    materials:
+      - NETHERITE_HELMET
+      - NETHERITE_CHESTPLATE
+      - NETHERITE_LEGGINGS
+      - NETHERITE_BOOTS
+      - NETHERITE_SWORD
+      - NETHERITE_PICKAXE
+      - NETHERITE_INGOT
+      - NETHERITE_BLOCK
+    names:
+      - '&6&lBoss Soul'
+      - '&6Boss Soul Fragment'
+      - ' Key'
+    lores:
+      - '&6&lExceedingly Rare'
+    message: '§x§0§0§c§d§f§6&lMC§x§0§0§c§d§f§6§lL§x§0§0§b§8§e§8§la§x§0§0§a§2§d§a§lb§x§0§0§8§d§c§c§ls &f» &cValuable items can only be stored in chests the Factions world! Use /ec or /pv to store them here.'
+    containers:
+      - CHEST
+    container-title-whitelist:
+      - '&8Player Vault'
+      - '&8Claim Rewards!'
+      - '&8Disposal'
+      - '&2&lMCDrugs Navigator'
+      - '&8Notification Settings'
+      - '&8Repair & Name'
+      - '&8Repair & Disenchant'
+      - '&8Kits'
+      - '&ePick your job!'
+      - '&7Boss Soul Shop - Quick Buy'
+      - '&7Boss Soul Shop - Ranks'
+      - '&7Boss Soul Shop - Gear & Pots'
+      - '&7Boss Soul Shop - Keys'
+      - '&4&lDelete Items'
+      - '&7Expired Items &8(&71&8/&71&8)'
+      - '&8Rewards'
+      - '&8MCLabs Winter ChemPass'
+      - '&8ChemPass Shop'
+      - '&8Quest Overview'
+      - '&8Seasonal Quests'
