@@ -14,7 +14,13 @@ public class ContainerListeners implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         Inventory clicked = event.getClickedInventory();
-        if (clicked != event.getWhoClicked().getInventory()) {  // drag + drop item into chest
+        if (event.getClick() == ClickType.NUMBER_KEY) { // keyboard number used to swap
+            ItemStack moved = event.getWhoClicked().getInventory().getItem(event.getHotbarButton());
+            int size = event.getInventory().getSize(); // size of inventory, to check if slot that the item being moved to is in the inventory or not
+            if (event.getRawSlot() < size && ItemCheck.isBlocked((Player) event.getWhoClicked(), moved, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle())) {
+                event.setCancelled(true);
+            }
+        } else if (clicked != event.getWhoClicked().getInventory()) {  // drag + drop item into chest
             // The cursor item is going into the top inventory
             ItemStack onCursor = event.getCursor();
             if (onCursor != null && ItemCheck.isBlocked((Player) event.getWhoClicked(), onCursor, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle())) {
@@ -24,22 +30,11 @@ public class ContainerListeners implements Listener {
             if (clicked == event.getWhoClicked().getInventory()) {
                 // The item is being shift clicked from the bottom to the top
                 ItemStack clickedOn = event.getCurrentItem();
-
                 if (clickedOn != null && ItemCheck.isBlocked((Player) event.getWhoClicked(),clickedOn, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle())) {
                     event.setCancelled(true);
                 }
             }
-        } else if (event.getClick().isKeyboardClick()) { // keyboard number used to swap
-            if (clicked == event.getWhoClicked().getInventory()) {
-                // The item is being shift clicked from the bottom to the top
-                ItemStack clickedOn = event.getCurrentItem();
-                Bukkit.broadcastMessage(clickedOn.getType().toString());
-                if (ItemCheck.isBlocked((Player) event.getWhoClicked(), clickedOn, event.getWhoClicked().getOpenInventory().getType(), event.getWhoClicked().getOpenInventory().getTitle())) {
-                    event.setCancelled(true);
-                }
-            }
         }
-
     }
 
     @EventHandler

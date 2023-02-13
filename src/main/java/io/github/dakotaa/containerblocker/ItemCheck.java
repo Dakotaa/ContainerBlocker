@@ -65,6 +65,7 @@ public class ItemCheck {
     }
     public static boolean isBlocked(Player player, ItemStack itemStack, InventoryType inventoryType, String inventoryName) {
         boolean blocked = false;
+        if (inventoryType.equals(InventoryType.CRAFTING)) return false; // never block movement within the inventory/armour/crafting slots
         for (BlockedGroup g : groups) {
             blocked = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack);
             if (blocked) { // if item is blocked, make final check for whether the inventory name is whitelisted
