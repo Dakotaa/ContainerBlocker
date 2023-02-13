@@ -6,9 +6,11 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -16,6 +18,21 @@ import java.util.regex.Pattern;
 
 public class ItemCheck {
     static BlockedGroup[] groups;
+    static ArrayList<InventoryType> neverBlock = new ArrayList<InventoryType>(){
+        {
+            add(InventoryType.CRAFTING);
+            add(InventoryType.ANVIL);
+            add(InventoryType.BEACON);
+            add(InventoryType.CARTOGRAPHY);
+            add(InventoryType.ENCHANTING);
+            add(InventoryType.WORKBENCH);
+            add(InventoryType.STONECUTTER);
+            add(InventoryType.SMITHING);
+            add(InventoryType.ENDER_CHEST);
+            add(InventoryType.LECTERN);
+            add(InventoryType.LOOM);
+        }
+    };
     /***
      * Reads the configured groups and builds BlockedGroup objects for each
      */
@@ -65,7 +82,7 @@ public class ItemCheck {
     }
     public static boolean isBlocked(Player player, ItemStack itemStack, InventoryType inventoryType, String inventoryName) {
         boolean blocked = false;
-        if (inventoryType.equals(InventoryType.CRAFTING)) return false; // never block movement within the inventory/armour/crafting slots
+        if (neverBlock.contains(inventoryType)) return false; // never block movement within the inventory/armour/crafting slots
         for (BlockedGroup g : groups) {
             blocked = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack);
             if (blocked) { // if item is blocked, make final check for whether the inventory name is whitelisted
