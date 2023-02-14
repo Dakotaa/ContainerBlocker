@@ -1,5 +1,6 @@
 package io.github.dakotaa.containerblocker;
 
+import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,10 +23,11 @@ public class BlockedGroup {
     private final Material[] materials;
     private final Pattern[] namePatterns;
     private final Pattern[] lorePatterns;
+    private final String[] nbtTags;
     private final Pattern[] containerTitlePatterns;
     private final String message;
     static Pattern pattern = Pattern.compile(ChatColor.translateAlternateColorCodes('&', "&8Go{2,4}d Inventory"), Pattern.CASE_INSENSITIVE);
-    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] containerTitles, String message) {
+    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] nbtTags, String[] containerTitles, String message) {
         this.id = id;
         this.materials = materials;
         // compile regex patterns for blocked names
@@ -37,6 +40,7 @@ public class BlockedGroup {
         for (int i = 0; i < loreElements.length; i++) {
             this.lorePatterns[i] = Pattern.compile(ChatColor.translateAlternateColorCodes('&', loreElements[i]), Pattern.CASE_INSENSITIVE);
         }
+        this.nbtTags = nbtTags;
         // compile regex patterns for container titles
         this.containerTitlePatterns = new Pattern[containerTitles.length];
         for (int i = 0; i < containerTitles.length; i++) {
@@ -83,6 +87,15 @@ public class BlockedGroup {
                 Matcher matcher = p.matcher(line);
                 if (matcher.find()) return true;
             }
+        }
+        return false;
+    }
+
+    public boolean checkNBT(ItemStack itemStack) {
+        NBTItem nbt = new NBTItem(itemStack);
+        List<String> blockedTags = Arrays.asList(nbtTags);
+        for (String tag : nbt.getKeys()) {
+            if (blockedTags.contains(tag)) return true;
         }
         return false;
     }
