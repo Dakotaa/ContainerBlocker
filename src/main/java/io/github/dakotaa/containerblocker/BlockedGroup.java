@@ -26,8 +26,9 @@ public class BlockedGroup {
     private final String[] nbtTags;
     private final Pattern[] containerTitlePatterns;
     private final String message;
+    private final boolean containerTitlePatternsIsWhitelist;
     static Pattern pattern = Pattern.compile(ChatColor.translateAlternateColorCodes('&', "&8Go{2,4}d Inventory"), Pattern.CASE_INSENSITIVE);
-    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] nbtTags, String[] containerTitles, String message) {
+    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] nbtTags, String[] containerTitles, boolean containerTitlePatternsIsWhitelist, String message) {
         this.id = id;
         this.materials = materials;
         // compile regex patterns for blocked names
@@ -46,6 +47,7 @@ public class BlockedGroup {
         for (int i = 0; i < containerTitles.length; i++) {
             this.containerTitlePatterns[i] = Pattern.compile(ChatColor.translateAlternateColorCodes('&', containerTitles[i]), Pattern.CASE_INSENSITIVE);
         }
+        this.containerTitlePatternsIsWhitelist = containerTitlePatternsIsWhitelist;
         this.message = ChatColor.translateAlternateColorCodes('&', message);
     }
 
@@ -106,6 +108,10 @@ public class BlockedGroup {
             if (matcher.find()) return true;
         }
         return false;
+    }
+
+    public boolean isContainerTitlePatternsWhitelist() {
+        return this.containerTitlePatternsIsWhitelist;
     }
 
     public String getId() {

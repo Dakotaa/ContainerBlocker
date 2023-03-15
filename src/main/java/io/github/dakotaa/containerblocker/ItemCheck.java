@@ -57,7 +57,8 @@ public class ItemCheck {
             String[] nbtTags = config.getStringList("blocked-groups." + name + ".nbt").toArray(new String[0]);
             String[] containerTitles = config.getStringList("blocked-groups." + name + ".container-title-whitelist").toArray(new String[0]);
             String message = config.getString("blocked-groups." + name + ".message");
-            groups[i] = new BlockedGroup(name, materials, names, lores, nbtTags, containerTitles, message);
+            boolean containerTitlesIsWhitelist = config.getBoolean("blocked-groups." + name + ".container-titles-is-whitelist", true);
+            groups[i] = new BlockedGroup(name, materials, names, lores, nbtTags, containerTitles, containerTitlesIsWhitelist, message);
             i++;
         }
 
@@ -81,11 +82,17 @@ public class ItemCheck {
         return false;
     }
     public static boolean isBlocked(Player player, ItemStack itemStack, InventoryType inventoryType, String inventoryName) {
-        boolean blocked = false;
+        boolean match, whitelisted = false;
         if (neverBlock.contains(inventoryType)) return false; // never block movement within the inventory/armour/crafting slots
         for (BlockedGroup g : groups) {
-            blocked = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
-            if (blocked && !g.isWhitelistedContainer(inventoryName)) { // if item is blocked, make final check for whether the inventory name is whitelisted
+            match = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
+            whitelisted = g.isWhitelistedContainer(inventoryName);
+            if (match) { // if item is blocked, make final check for whether the inventory name is whitelisted (or blacklisted)
+                if (g.isContainerTitlePatternsWhitelist()) {
+                    if (whitelisted) return false;
+                } else {
+                    if (!whitelisted) return false;
+                }
                 player.sendMessage(g.getMessage());
                 return true;
             }
