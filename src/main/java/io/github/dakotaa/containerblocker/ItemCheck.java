@@ -55,10 +55,11 @@ public class ItemCheck {
             String[] names = config.getStringList("blocked-groups." + name + ".names").toArray(new String[0]);
             String[] lores = config.getStringList("blocked-groups." + name + ".lores").toArray(new String[0]);
             String[] nbtTags = config.getStringList("blocked-groups." + name + ".nbt").toArray(new String[0]);
+            String[] enchantments = config.getStringList("blocked-groups." + name + ".enchantments").toArray(new String[0]);
             String[] containerTitles = config.getStringList("blocked-groups." + name + ".container-title-whitelist").toArray(new String[0]);
             String message = config.getString("blocked-groups." + name + ".message");
             boolean containerTitlesIsWhitelist = config.getBoolean("blocked-groups." + name + ".container-titles-is-whitelist", true);
-            groups[i] = new BlockedGroup(name, materials, names, lores, nbtTags, containerTitles, containerTitlesIsWhitelist, message);
+            groups[i] = new BlockedGroup(name, materials, names, lores, enchantments, nbtTags, containerTitles, containerTitlesIsWhitelist, message);
             i++;
         }
 
@@ -74,7 +75,7 @@ public class ItemCheck {
     public static boolean isBlocked(ItemStack itemStack, InventoryType inventoryType, String inventoryName) {
         boolean blocked = false;
         for (BlockedGroup g : groups) {
-            blocked = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
+            blocked = g.checkMaterial(itemStack) || g.checkEnchantments(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
             if (blocked) { // if item is blocked, make final check for whether the inventory name is whitelisted
                 return !g.isWhitelistedContainer(inventoryName);
             }
@@ -85,7 +86,7 @@ public class ItemCheck {
         boolean match, whitelisted = false;
         if (neverBlock.contains(inventoryType)) return false; // never block movement within the inventory/armour/crafting slots
         for (BlockedGroup g : groups) {
-            match = g.checkMaterial(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
+            match = g.checkMaterial(itemStack) || g.checkEnchantments(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
             whitelisted = g.isWhitelistedContainer(inventoryName);
             if (match) { // if item is blocked, make final check for whether the inventory name is whitelisted (or blacklisted)
                 if (g.isContainerTitlePatternsWhitelist()) {

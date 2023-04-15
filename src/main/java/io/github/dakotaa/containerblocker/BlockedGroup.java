@@ -4,14 +4,19 @@ import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.System.in;
 
 /**
  * BlockedGroup represents a collection of materials, item names, and item lore lines that should be blocked.
@@ -23,12 +28,13 @@ public class BlockedGroup {
     private final Material[] materials;
     private final Pattern[] namePatterns;
     private final Pattern[] lorePatterns;
+    private final HashMap<Enchantment, Integer> enchantments;
     private final String[] nbtTags;
     private final Pattern[] containerTitlePatterns;
     private final String message;
     private final boolean containerTitlePatternsIsWhitelist;
     static Pattern pattern = Pattern.compile(ChatColor.translateAlternateColorCodes('&', "&8Go{2,4}d Inventory"), Pattern.CASE_INSENSITIVE);
-    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] nbtTags, String[] containerTitles, boolean containerTitlePatternsIsWhitelist, String message) {
+    public BlockedGroup(String id, Material[] materials, String[] names, String[] loreElements, String[] enchantments, String[] nbtTags, String[] containerTitles, boolean containerTitlePatternsIsWhitelist, String message) {
         this.id = id;
         this.materials = materials;
         // compile regex patterns for blocked names
@@ -41,6 +47,7 @@ public class BlockedGroup {
         for (int i = 0; i < loreElements.length; i++) {
             this.lorePatterns[i] = Pattern.compile(ChatColor.translateAlternateColorCodes('&', loreElements[i]), Pattern.CASE_INSENSITIVE);
         }
+        this.enchantments = parseEnchantments(enchantments);
         this.nbtTags = nbtTags;
         // compile regex patterns for container titles
         this.containerTitlePatterns = new Pattern[containerTitles.length];
@@ -49,6 +56,21 @@ public class BlockedGroup {
         }
         this.containerTitlePatternsIsWhitelist = containerTitlePatternsIsWhitelist;
         this.message = ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    /**
+     * from the configured list of enchantment IDs and levels, builds the map of enchantments and levels
+     * @param enchantments a list of enchantments in the form "enchantment:level"
+     * @return the map of enchantment objects with levels
+     */
+    private HashMap<Enchantment, Integer> parseEnchantments(String[] enchantments) {
+        HashMap<Enchantment, Integer> map = new HashMap<>();
+        for (String enchant : enchantments) {
+            Enchantment enchantName = Enchantment.getByKey(NamespacedKey.minecraft(enchant.split(":")[0]));
+            Integer enchantLevel = Integer.valueOf(enchant.split(":")[1]);
+            map.put(enchantName, enchantLevel);
+        }
+        return map;
     }
 
     /**
@@ -88,6 +110,18 @@ public class BlockedGroup {
             for (Pattern p : this.lorePatterns) {
                 Matcher matcher = p.matcher(line);
                 if (matcher.find()) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean checkEnchantments(ItemStack itemStack) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        Map<Enchantment, Integer> enchants =  itemMeta.getEnchants();
+        for (Enchantment e : enchants.keySet()) {
+            Integer level = this.enchantments.get(e);
+            if (level != null) {
+                if (enchants.get(e) >= level) return true;
             }
         }
         return false;
