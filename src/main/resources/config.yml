@@ -45,3 +45,5 @@ blocked-groups:
       - '&8ChemPass Shop'
       - '&8Quest Overview'
       - '&8Seasonal Quests'
+messages:
+  deny-shop: '§x§0§0§c§d§f§6&lMC§x§0§0§c§d§f§6§lL§x§0§0§b§8§e§8§la§x§0§0§a§2§d§a§lb§x§0§0§8§d§c§c§ls &f» &cValuable items and chem compounds can''t be bought or sold to chest shops. Sell them in the player shops at /shops.'

@@ -100,4 +100,15 @@ public class ItemCheck {
         }
         return false;
     }
+
+    public static boolean isBlocked(ItemStack itemStack) {
+        boolean match = false;
+        for (BlockedGroup g : groups) {
+            match = g.checkMaterial(itemStack) || g.checkEnchantments(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
+            if (match) { // if item is blocked, make final check for whether the inventory name is whitelisted (or blacklisted)
+                return true;
+            }
+        }
+        return false;
+    }
 }
