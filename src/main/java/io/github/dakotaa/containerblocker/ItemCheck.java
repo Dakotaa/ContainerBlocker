@@ -68,11 +68,10 @@ public class ItemCheck {
     /**
      * Checks if the given itemstack is blocked from the specified inventory type and title
      * @param itemStack the itemstack being moved into the container
-     * @param inventoryType the container type
      * @param inventoryName the name of the container
      * @return true if the itemstack is blocked from being moved into the container, false otherwise
      */
-    public static boolean isBlocked(ItemStack itemStack, InventoryType inventoryType, String inventoryName) {
+    public static boolean isBlocked(ItemStack itemStack, String inventoryName) {
         boolean blocked = false;
         for (BlockedGroup g : groups) {
             blocked = g.checkMaterial(itemStack) || g.checkEnchantments(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
@@ -82,6 +81,7 @@ public class ItemCheck {
         }
         return false;
     }
+
     public static boolean isBlocked(Player player, ItemStack itemStack, InventoryType inventoryType, String inventoryName) {
         boolean match, whitelisted = false;
         if (neverBlock.contains(inventoryType)) return false; // never block movement within the inventory/armour/crafting slots
@@ -106,6 +106,18 @@ public class ItemCheck {
         for (BlockedGroup g : groups) {
             match = g.checkMaterial(itemStack) || g.checkEnchantments(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
             if (match) { // if item is blocked, make final check for whether the inventory name is whitelisted (or blacklisted)
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isBlocked(Player player, ItemStack itemStack) {
+        boolean match = false;
+        for (BlockedGroup g : groups) {
+            match = g.checkMaterial(itemStack) || g.checkEnchantments(itemStack) || g.checkName(itemStack) || g.checkLore(itemStack) || g.checkNBT(itemStack);
+            if (match) { // if item is blocked, make final check for whether the inventory name is whitelisted (or blacklisted)
+                player.sendMessage(g.getMessage());
                 return true;
             }
         }

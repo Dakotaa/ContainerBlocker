@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
@@ -117,7 +118,13 @@ public class BlockedGroup {
 
     public boolean checkEnchantments(ItemStack itemStack) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        Map<Enchantment, Integer> enchants =  itemMeta.getEnchants();
+        Map<Enchantment, Integer> enchants;
+        if (itemStack.getType().equals(Material.ENCHANTED_BOOK)) {
+            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) itemStack.getItemMeta();
+            enchants = meta.getStoredEnchants();
+        } else {
+            enchants = itemMeta.getEnchants();
+        }
         for (Enchantment e : enchants.keySet()) {
             Integer level = this.enchantments.get(e);
             if (level != null) {

@@ -2,10 +2,12 @@ package io.github.dakotaa.containerblocker;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -76,7 +78,7 @@ public class ContainerListeners implements Listener {
     public void onHopperTransfer(InventoryMoveItemEvent event) {
         if (!event.getSource().getType().equals(InventoryType.HOPPER)) return;
         ItemStack moved = event.getItem();
-        if (moved.getType() != Material.AIR && ItemCheck.isBlocked(moved, event.getDestination().getType(), "Hopper")) {
+        if (moved.getType() != Material.AIR && ItemCheck.isBlocked(moved, "Hopper")) {
             event.setCancelled(true);
         }
     }
@@ -88,8 +90,19 @@ public class ContainerListeners implements Listener {
     public void onHopperPickup(InventoryPickupItemEvent event) {
         if (!event.getInventory().getType().equals(InventoryType.HOPPER)) return;
         ItemStack moved = event.getItem().getItemStack();
-        if (moved.getType() != Material.AIR && ItemCheck.isBlocked(moved, event.getInventory().getType(), "Hopper")) {
+        if (moved.getType() != Material.AIR && ItemCheck.isBlocked(moved, "Hopper")) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onItemFrameDeposit(PlayerInteractEntityEvent e) {
+        if (e.getRightClicked() instanceof ItemFrame) {
+            Player player = e.getPlayer();
+            ItemStack item = player.getInventory().getItemInMainHand();
+            if (item.getType() != Material.AIR && ItemCheck.isBlocked(player, item)) {
+                e.setCancelled(true);
+            }
         }
     }
 }
