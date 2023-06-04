@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -103,6 +104,14 @@ public class ContainerListeners implements Listener {
             if (item.getType() != Material.AIR && ItemCheck.isBlocked(player, item)) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onArmorStandDeposit(PlayerArmorStandManipulateEvent e) {
+        ItemStack equipped = e.getPlayerItem();
+        if (equipped.getType() != Material.AIR && ItemCheck.isBlocked(equipped, "ArmorStand")) {
+            e.setCancelled(true);
         }
     }
 }
